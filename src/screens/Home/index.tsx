@@ -27,22 +27,44 @@ export function Home() {
   const [searchText, setSearchText] = useState('');
   const [searchListData, setSearchListData] = useState<LoginListDataProps>([]);
   const [data, setData] = useState<LoginListDataProps>([]);
-
+  const dataKey = '@savepass:logins';
   async function loadData() {
-    const dataKey = '@savepass:logins';
     // Get asyncStorage data, use setSearchListData and setData
+    
+    const response = await AsyncStorage.getItem(dataKey);
+    const parseData = response ? JSON.parse(response) : [];
+
+    setSearchListData(parseData);
+    setData(parseData); 
+    
   }
 
   function handleFilterLoginData() {
     // Filter results inside data, save with setSearchListData
+    const filteedData = searchListData.filter(data => {
+      const validadedData = data.service_name.toLocaleUpperCase().includes(searchText.toLocaleUpperCase())
+
+      if (validadedData) return data;
+
+    });
+
+    setSearchListData(filteedData);
   }
 
   function handleChangeInputText(text: string) {
     // Update searchText value
+    if (!text) setSearchListData(data);
+    
+    setSearchText(text);
   }
 
   useFocusEffect(useCallback(() => {
     loadData();
+    /**** removeAll AsyncStorage  ****/
+    //   async function removeAll() {
+    //   await AsyncStorage.removeItem(dataKey);
+    // }
+    // removeAll();
   }, []));
 
   return (
